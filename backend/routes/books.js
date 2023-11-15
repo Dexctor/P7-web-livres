@@ -11,9 +11,10 @@ router.post('/', auth,multer, booksController.addBook);
 router.post('/:id/rating', auth, booksController.rateBook);
 
 //récupération d'un livre et de tout les livre + la meilleur note (Read)
-router.get('/', auth, booksController.getAllBooks);
-router.get('/:id', auth,booksController.getBookById);
-router.get('/bestrating', auth,booksController.getBooksWithBestRating);
+router.get('/bestrating', booksController.getBooksWithBestRating);
+router.get('/', booksController.getAllBooks);
+router.get('/:id', booksController.getBookById);
+
 
 
 // mise à jour d'un livre (update)

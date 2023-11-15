@@ -20,6 +20,7 @@ exports.signup = (req, res) => {
 };
 
 exports.login = (req, res) => {
+    localStorage.clear(); // Cela va supprimer les données stockées
   const { email, password } = req.body;
   User.findOne({ email })
       .then(user => {
@@ -36,7 +37,7 @@ exports.login = (req, res) => {
                           token: jwt.sign(
                               { userId: user._id },
                               'RANDOM_TOKEN_SECRET',
-                              { expiresIn: '24' }
+                              { expiresIn: '24h' }
                           )
                       });
                   }

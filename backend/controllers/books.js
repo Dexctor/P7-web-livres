@@ -96,15 +96,15 @@ exports.modifyBook = (req, res) => {
     });
 };
 
-// met a jour un le rating d'un livre
+// Met à jour le rating d'un livre
 exports.updateBookRating = async (req, res) => {
   try {
     const bookId = req.params.id;
-    const { userId, rating: grade } = req.body; // Assumons que l'ID de l'utilisateur et la note sont envoyés dans le corps de la requête
+    const { userId, grade } = req.body; // Utilisation de 'grade' comme attendu par le front-end
 
-    // Vérifier si le rating est dans une plage valide (par exemple, de 0 à 5)
-    if (rating < 0 || rating > 5) {
-      return res.status(400).json({ message: 'Invalid rating' });
+    // Vérifier si le grade est dans une plage valide
+    if (grade < 0 || grade > 5) {
+      return res.status(400).json({ message: 'Invalid grade' });
     }
 
     const book = await Book.findById(bookId);
@@ -119,7 +119,7 @@ exports.updateBookRating = async (req, res) => {
       book.ratings[existingRatingIndex].grade = grade;
     } else {
       // Ajout d'une nouvelle note
-      book.ratings.push({ userId, grade: rating });
+      book.ratings.push({ userId, grade });
     }
 
     // Recalcul de la note moyenne
@@ -133,16 +133,16 @@ exports.updateBookRating = async (req, res) => {
   }
 };
 
-// notation des livres 
+// Notation des livres
 exports.rateBook = async (req, res) => {
   try {
     const bookId = req.params.id;
     const userId = req.user._id; // Assumant que l'ID de l'utilisateur est stocké dans req.user
-    const { rating: grade } = req.body; // La nouvelle note
+    const { grade } = req.body; // Utilisation de 'grade'
 
     // Validation de la note
-    if (rating < 0 || rating > 5) {
-      return res.status(400).json({ message: 'Invalid rating' });
+    if (grade < 0 || grade > 5) {
+      return res.status(400).json({ message: 'Invalid grade' });
     }
 
     const book = await Book.findById(bookId);
@@ -175,7 +175,7 @@ exports.deleteBook = (req, res) => {
     .catch(error => res.status(400).json({ error }));
 };
 
-exports.getBooksWithBestRating = (req, res) => {
+exports.getBooksWithBestRating = (req, res, next) => {
   Book.find()
     .sort({ averageRating: -1 })
     .limit(3)
