@@ -151,9 +151,9 @@ exports.rateBook = async (req, res) => {
     }
 
     // Trouver si l'utilisateur a déjà noté le livre
-    const existingRating = book.ratings.find(r => r.userId.equals(userId));
-    if (existingRating) {
-      existingRating.grade = grade;
+    const existingRatingIndex = book.ratings.findIndex(r => r.userId.equals(userId));
+    if (existingRatingIndex > -1) {
+      book.ratings[existingRatingIndex].grade = grade;
     } else {
       book.ratings.push({ userId, grade });
     }

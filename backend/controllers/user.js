@@ -20,7 +20,6 @@ exports.signup = (req, res) => {
 };
 
 exports.login = (req, res) => {
-    localStorage.clear(); // Cela va supprimer les données stockées
   const { email, password } = req.body;
   User.findOne({ email })
       .then(user => {
