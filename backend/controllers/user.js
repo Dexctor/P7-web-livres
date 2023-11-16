@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 
 // Fonction d'inscription
-exports.signup = (req, res) => {
+exports.signup = (req, res, next) => {
   const password = req.body.password;
   bcrypt.hash(password, 10)
       .then(hash => {
