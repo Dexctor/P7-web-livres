@@ -1,7 +1,7 @@
 const Book = require('../models/Book');
 const fs = require('fs');
 
-
+//CREATE
 exports.createBook = async (req, res, next) => {
   try {
   const bookObject = JSON.parse(req.body.book);
@@ -22,6 +22,50 @@ exports.createBook = async (req, res, next) => {
   }
 };
 
+exports.ratingBook = async (req, res, next) => {
+    Book.findOne({ _id: req.params.id })
+        .then( book => {    
+            const isAlreadyRated = book.ratings.find((book) => book.userId === req.auth.userId);
+              if ( !isAlreadyRated) {
+                book.ratings.push({
+                    userId: req.auth.userId,
+                    grade: req.body.rating
+                })
+                let newAverageRating = book.ratings.reduce((accumulator, currentValue) => accumulator + currentValue.grade, 0)/book.ratings.length;
+                book.averageRating = newAverageRating;
+    
+                return book.save()
+                } else {
+                    res.status(401).json({message: 'Book already rated'});
+                }
+            })
+        .then(book => res.status(201).json(book))
+        .catch(error => res.status(500).json({ error }));
+      };
+
+//READ
+exports.getOneBook = (req, res, next) => {
+    Book.findOne({ _id: req.params.id })
+        .then(book => res.status(200).json(book))
+        .catch(error => res.status(404).json({ error }));
+};
+
+exports.getAllBook = (req, res, next) => {
+    Book.find()
+        .then(books => res.status(200).json(books))
+        .catch(error => res.status(400).json({ error }));
+};
+
+exports.getBestRatedBooks = (req, res, next) => {
+Book.find()
+    .then(books => {
+        books.sort((a, b) => b.averageRating - a.averageRating);
+        const bestRatedBooks = books.slice(0, 3);
+        res.status(201).json(bestRatedBooks)})
+    .catch(error => res.status(404).json({ error }));
+};
+
+//UPDATE
 exports.modifyBook = (req, res, next) => {
   const bookObject = req.file ? {
       ...JSON.parse(req.body.book),
@@ -49,7 +93,7 @@ exports.modifyBook = (req, res, next) => {
       .catch(error => res.status(500).json({ error }));
 };
 
-
+//DELETE
 exports.deleteBook = (req, res, next) => {
 Book.findOne({ _id: req.params.id})
     .then(book => {
@@ -72,44 +116,4 @@ Book.findOne({ _id: req.params.id})
     })
 };
 
-exports.getOneBook = (req, res, next) => {
-Book.findOne({ _id: req.params.id })
-    .then(book => res.status(200).json(book))
-    .catch(error => res.status(404).json({ error }));
-};
 
-exports.getAllBook = (req, res, next) => {
-Book.find()
-    .then(books => res.status(200).json(books))
-    .catch(error => res.status(400).json({ error }));
-};
-
-exports.getBestRatedBooks = (req, res, next) => {
-Book.find()
-    .then(books => {
-        books.sort((a, b) => b.averageRating - a.averageRating);
-        const bestRatedBooks = books.slice(0, 3);
-        res.status(201).json(bestRatedBooks)})
-    .catch(error => res.status(404).json({ error }));
-};
-
-exports.ratingBook = async (req, res, next) => {
-Book.findOne({ _id: req.params.id })
-    .then( book => {    
-        const isAlreadyRated = book.ratings.find((book) => book.userId === req.auth.userId);
-          if ( !isAlreadyRated) {
-            book.ratings.push({
-                userId: req.auth.userId,
-                grade: req.body.rating
-            })
-            let newAverageRating = book.ratings.reduce((accumulator, currentValue) => accumulator + currentValue.grade, 0)/book.ratings.length;
-            book.averageRating = newAverageRating;
-
-            return book.save()
-            } else {
-                res.status(401).json({message: 'Book already rated'});
-            }
-        })
-    .then(book => res.status(201).json(book))
-    .catch(error => res.status(500).json({ error }));
-  };

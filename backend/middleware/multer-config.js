@@ -1,5 +1,7 @@
 const multer = require('multer');
-// const sharpMulter = require("sharp-multer");
+const sharp = require('sharp');
+const path = require('path');
+const fs = require('fs'); 
 
 const MIME_TYPES = {
     'image/jpg': 'jpg',
@@ -12,12 +14,38 @@ const storage = multer.diskStorage({
         callback(null, 'images');
     },
     filename: (req, file, callback) => {
-        const name = file.originalname.split(' ').join('_').replace(/\.jpeg|\.jpg|\.png/g, "_");
+        const name = Date.now(); // Simplification du nom en utilisant uniquement le timestamp
         const extension = MIME_TYPES[file.mimetype];
-        callback(null, name + Date.now() + '.' + extension);
+        callback(null, name + '.' + extension);
     }
 });
 
+const upload = multer({storage: storage}).single('image');
 
+const resizeImage = (req, res, next) => {
+  if (!req.file) {
+    return next();
+  }
 
-module.exports = multer({storage: storage}).single('image');
+  const filePath = req.file.path;
+  const fileName = req.file.filename;
+  const outputFilePath = path.join(__dirname, 'images', `resized_${fileName}`);
+
+  sharp(filePath)
+    .resize({ width: 206, height: 260 })
+    .toFile(outputFilePath)
+    .then(() => {
+      fs.unlink(filePath, () => {
+        req.file.path = outputFilePath;
+        req.file.filename = `resized_${fileName}`;
+        console.log('sharp success');
+        next();
+      });
+    })
+    .catch(err => {
+      console.error('Sharp error:', err);
+      return next();
+    });
+};
+
+module.exports = { upload, resizeImage };

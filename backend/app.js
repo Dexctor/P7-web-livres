@@ -13,10 +13,10 @@ const app = express();
 // Connexion à la base de données MongoDB
 connectToDB();
 
-// Configuration du middleware pour parser le JSON
+// Configuration du Middleware pour parser le JSON / parse les corps des requêtes entrantes en JSON
 app.use(express.json());
 
-// Utilisation du middleware cors
+// Utilisation du Middleware cors
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
@@ -24,9 +24,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// route 
+// route pour les Users et les livres
 app.use('/api/auth', userRoutes)
 app.use('/api/books', bookRoutes);
+
+// Middleware pour les routes statiques
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
 
