@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
         callback(null, 'images');
     },
     filename: (req, file, callback) => {
-        const name = Date.now(); // Simplification du nom en utilisant uniquement le timestamp
+        const name = Date.now(); 
         const extension = MIME_TYPES[file.mimetype];
         callback(null, name + '.' + extension);
     }
@@ -29,7 +29,7 @@ const resizeImage = (req, res, next) => {
 
   const filePath = req.file.path;
   const fileName = req.file.filename;
-  const outputFilePath = path.join(__dirname, 'images', `resized_${fileName}`);
+  const outputFilePath = path.join(__dirname, '../images', `resized_${fileName}`);
 
   sharp(filePath)
     .resize({ width: 206, height: 260 })

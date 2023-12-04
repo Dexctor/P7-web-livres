@@ -10,7 +10,8 @@ exports.createBook = async (req, res, next) => {
   const book = new Book ({
       ...bookObject,
       userId: req.auth.userId,
-      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+      averageRating: bookObject.averageRating || 0
   });
   
   await book.save()
@@ -42,7 +43,7 @@ exports.ratingBook = async (req, res, next) => {
         .then(book => res.status(201).json(book))
         .catch(error => res.status(500).json({ error }));
       };
-
+ 
 //READ
 exports.getOneBook = (req, res, next) => {
     Book.findOne({ _id: req.params.id })
